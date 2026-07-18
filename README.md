@@ -1,177 +1,192 @@
-import numpy as np
-import pandas as pd
-import tensorflow as tf
-import matplotlib.pyplot as plt
-from sklearn.preprocessing import LabelEncoder
-from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import StandardScaler
-from sklearn.metrics import (
-    confusion_matrix,
-    accuracy_score,
-    classification_report,
-    precision_score,
-    recall_score,
-    roc_auc_score
-)
+# 🏦 Bank Customer Churn Prediction using ANN
 
+An Artificial Neural Network (ANN)-based machine learning model that predicts whether a bank customer is likely to churn based on demographic and financial information. The project includes data preprocessing, model training, evaluation, visualization, and model serialization for future deployment.
 
+---
 
-df = pd.read_csv("Churn_Modelling.csv")
+## 🚀 Project Highlights
 
-print("Columns in dataset:")
-print(df.columns.tolist())
+- ANN-based binary classification model
+- Data preprocessing and feature scaling
+- Customer churn prediction
+- Early stopping to prevent overfitting
+- Learning rate scheduling
+- Performance evaluation using multiple metrics
+- Model and scaler serialization
+- Training visualization
 
+---
 
+## 📂 Dataset
 
-cols_to_drop = ['RowNumber', 'CustomerId', 'Surname']
+**Dataset:** `Churn_Modelling.csv`
 
-for col in cols_to_drop:
-    if col in df.columns:
-        df.drop(col, axis=1, inplace=True)
+### Features
 
-print("\nColumns after dropping:")
-print(df.columns.tolist())
+| Feature | Description |
+|---------|-------------|
+| CreditScore | Customer credit score |
+| Geography | Customer country |
+| Gender | Customer gender |
+| Age | Customer age |
+| Tenure | Years with the bank |
+| Balance | Account balance |
+| NumOfProducts | Number of bank products |
+| HasCrCard | Credit card holder |
+| IsActiveMember | Active customer status |
+| EstimatedSalary | Estimated annual salary |
 
+**Target Variable**
 
-le_geo = LabelEncoder()
-le_gender = LabelEncoder()
+| Value | Meaning |
+|------|---------|
+| 0 | Customer Stays |
+| 1 | Customer Leaves |
 
-if 'Geography' in df.columns:
-    df['Geography'] = le_geo.fit_transform(df['Geography'])
+---
 
-if 'Gender' in df.columns:
-    df['Gender'] = le_gender.fit_transform(df['Gender'])
+## ⚙️ Workflow
 
+```
+Dataset
+   │
+   ▼
+Data Cleaning
+   │
+   ▼
+Label Encoding
+   │
+   ▼
+Feature Scaling
+   │
+   ▼
+Train-Test Split
+   │
+   ▼
+ANN Model Training
+   │
+   ▼
+Model Evaluation
+   │
+   ▼
+Prediction
+   │
+   ▼
+Save Model
+```
 
-X = df.drop('Exited', axis=1)
-y = df['Exited']
+---
 
-t
+## 🧠 Model Architecture
 
-X_train, X_test, y_train, y_test = train_test_split(
-    X,
-    y,
-    test_size=0.2,
-    random_state=0
-)
+| Layer | Activation | Neurons |
+|------|------------|---------|
+| Hidden Layer 1 | ReLU | 6 |
+| Hidden Layer 2 | ReLU | 6 |
+| Output Layer | Sigmoid | 1 |
 
+### Training Configuration
 
-sc = StandardScaler()
+| Parameter | Value |
+|----------|-------|
+| Optimizer | Adam |
+| Loss Function | Binary Crossentropy |
+| Epochs | 100 |
+| Batch Size | 32 |
 
-X_train = sc.fit_transform(X_train)
-X_test = sc.transform(X_test)
+---
 
+## 📊 Evaluation Metrics
 
+- Accuracy
+- Precision
+- Recall
+- ROC-AUC Score
+- Confusion Matrix
+- Classification Report
 
-ann = tf.keras.models.Sequential()
+---
 
-ann.add(tf.keras.layers.Dense(units=6, activation='relu'))
-ann.add(tf.keras.layers.Dense(units=6, activation='relu'))
-ann.add(tf.keras.layers.Dense(units=1, activation='sigmoid'))
+## 📈 Output
 
+The project generates:
 
-ann.compile(
-    optimizer='adam',
-    loss='binary_crossentropy',
-    metrics=['accuracy']
-)
+- Training Accuracy Curve
+- Validation Accuracy Curve
+- Training Loss Curve
+- Validation Loss Curve
+- Customer Churn Prediction
 
+---
 
+## 💾 Saved Files
 
-early_stopping = tf.keras.callbacks.EarlyStopping(
-    monitor='val_loss',
-    patience=10,
-    restore_best_weights=True
-)
+```
+churn_model.keras
+scaler.pkl
+```
 
-reduce_lr = tf.keras.callbacks.ReduceLROnPlateau(
-    monitor='val_loss',
-    factor=0.2,
-    patience=10,
-    min_lr=0.0001
-)
+---
 
+## 📁 Project Structure
 
+```
+Bank-Customer-Churn-Prediction/
+│── Churn_Modelling.csv
+│── main.py
+│── churn_model.keras
+│── scaler.pkl
+│── README.md
+│── requirements.txt
+```
 
-history = ann.fit(
-    X_train,
-    y_train,
-    batch_size=32,
-    epochs=100,
-    validation_data=(X_test, y_test),
-    callbacks=[early_stopping, reduce_lr]
-)
+---
 
+## 🛠️ Technologies Used
 
-sample = pd.DataFrame(
-    [[600, 0, 1, 40, 3, 60000, 2, 1, 1, 50000]],
-    columns=X.columns
-)
+- Python
+- TensorFlow / Keras
+- NumPy
+- Pandas
+- Scikit-learn
+- Matplotlib
+- Joblib
 
-sample_scaled = sc.transform(sample)
+---
 
-prediction = ann.predict(sample_scaled)
+## ▶️ Installation
 
-print("\nPrediction Probability:", prediction[0][0])
+```bash
+git clone https://github.com/your-username/Bank-Customer-Churn-Prediction.git
 
-if prediction[0][0] > 0.5:
-    print("Customer will leave the bank")
-else:
-    print("Customer will stay in the bank")
+cd Bank-Customer-Churn-Prediction
 
+pip install -r requirements.txt
 
-y_pred = ann.predict(X_test)
-y_pred = (y_pred > 0.5)
+python main.py
+```
 
+---
 
-print("\nClassification Report")
-print(classification_report(y_test, y_pred))
+## 🔮 Future Improvements
 
-cm = confusion_matrix(y_test, y_pred)
+- Hyperparameter Optimization
+- Explainable AI (SHAP/LIME)
+- Streamlit Dashboard
+- REST API Deployment
+- Docker Support
+- Cloud Deployment
 
-print("\nConfusion Matrix")
-print(cm)
+---
 
-print("\nAccuracy")
-print(accuracy_score(y_test, y_pred))
+## 👨‍💻 Author
 
+**Jeff John**
 
+B.Tech Computer Science (Artificial Intelligence)
 
-train_loss, train_acc = ann.evaluate(X_train, y_train, verbose=0)
-test_loss, test_acc = ann.evaluate(X_test, y_test, verbose=0)
+---
 
-y_train_pred = ann.predict(X_train)
-train_auc = roc_auc_score(y_train, y_train_pred)
+## 📄 License
 
-y_test_pred = ann.predict(X_test)
-test_auc = roc_auc_score(y_test, y_test_pred)
-
-print("\nTraining Accuracy:", train_acc)
-print("Test Accuracy:", test_acc)
-print("Test AUC:", test_auc)
-
-
-
-
-plt.figure(figsize=(12,5))
-
-plt.subplot(1,2,1)
-plt.plot(history.history['accuracy'])
-plt.plot(history.history['val_accuracy'])
-plt.title('Model Accuracy')
-plt.xlabel('Epoch')
-plt.ylabel('Accuracy')
-plt.legend(['Train', 'Validation'])
-
-plt.subplot(1,2,2)
-plt.plot(history.history['loss'])
-plt.plot(history.history['val_loss'])
-plt.title('Model Loss')
-plt.xlabel('Epoch')
-plt.ylabel('Loss')
-plt.legend(['Train', 'Validation'])
-
-plt.show()
-import joblib
-ann.save("churn_model.keras")
-joblib.dump(sc, "scaler.pkl")
+This project is developed for educational and learning purposes.
